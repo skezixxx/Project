@@ -2,7 +2,6 @@ version 1.0
 
 new:
 ! test.png
-! test.py
 ! test.ui
 ! test_icon.png
 ! version.txt
