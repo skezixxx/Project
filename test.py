@@ -4,14 +4,14 @@ import os
 import time
 
 from PIL import Image
-from PyQt6 import uic
+from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PyQt6.QtGui import QPalette, QBrush, QIcon, QPixmap, QImage
-from PyQt6.QtCore import QSize, Qt
+from PyQt5.QtGui import QImage, QPalette, QBrush, QIcon
+from PyQt5.QtCore import QSize, Qt
 
 
 class WindowMaker(QMainWindow):
-    def __init__(self, ui, bg_image):
+    def __init__(self, ui, background_image):
         super().__init__()
         try:
             exist_check = open(background_image, 'rb')
@@ -27,18 +27,17 @@ class WindowMaker(QMainWindow):
                 sys.exit()
                 return None
         uic.loadUi(ui, self)
-        self.bg_image = QImage(bg_image)
+        self.pre_image = QImage(background_image)
         self.background = QPalette()
+        self.setPalette(self.background)
         self.setWindowIcon(QIcon('icon.png'))
-        with Image.open(bg_image) as img:
+        with Image.open(background_image) as img:
             width, height = img.size
         self.aspect_ratio = width / height
 
-    #При изменении размера окна
     def resizeEvent(self, event):
-        image_now = self.bg_image.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
-        self.setPalette(self.background)
-        self.background.setBrush(QPalette.ColorRole.Window, QBrush(image_now))
+        self.post_image = self.pre_image.scaled(self.size(), Qt.KeepAspectRatioByExpanding, transformMode = Qt.SmoothTransformation)
+        self.background.setBrush(QPalette.Window, QBrush(self.post_image))
         self.setPalette(self.background)
         self.setFixedHeight(int(self.width() / self.aspect_ratio))
         
@@ -146,7 +145,6 @@ class Workspace(WindowMaker):
     def __init__(self, ui, background_image):
         super().__init__(ui, background_image)
         self.pushButton.setStyleSheet('background: #FA9800; color: white; padding: 10px 30px; border: 1px solid #FA9800; border-radius: 25px')
-        self.textEdit.setStyleSheet('border: 1px solid white; border-radius: 25px')
 
 
 
