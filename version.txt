@@ -1,7 +1,9 @@
 version 1.0
 
 new:
-! test.png
-! test.ui
-! test_icon.png
+! greet.png
+! greet.ui
+! icon.png
 ! version.txt
+! workspace.png
+! workspace.ui
