@@ -1,0 +1,43 @@
+`
+Task (self.condition):
+Белль сказала своему другу Майку, что если у билета, состоящего из 6 цифр, сумма первых трех цифр равна сумме трех последних, то он счастливый, если нет, то несчастливый. Напиши программу, которая принимает 6-значный номер билета и выводит его "счастливость"
+`
+
+
+
+`
+Answer (self.answer):
+number = input()
+summa1 = 0
+summa2 = 0
+for i in number[:3]:
+    summa1 += int(i)
+for i in number[3:]:
+    summa2 += int(i)
+if summa1 == summa2:
+    print('Счастливый')
+else:
+    print('Несчастливый')
+`
+
+
+
+`
+Example (self.example):
+(('606606', 'Счастливый'), ('123456', 'Несчастливый'))
+`
+
+
+
+`
+Tests (self.tests -> self.testlist_1, self.testlist_2):
+numbers = list(product('0123456789', repeat=6))[1::]
+self.testlist = [['606606'], ['123456'], ['000000']]
+i = 0
+while i < 146:
+    i += 1
+    elem = choice(numbers)
+    self.testlist.append([''.join(elem)])
+    numbers.remove(elem)
+self.testlist.append(['999999'])
+`

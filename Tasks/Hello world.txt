@@ -1,0 +1,25 @@
+`
+Task (self.condition):
+Напиши программу, которая выводит "Hello world" без кавычек
+`
+
+
+
+`
+Answer (self.answer):
+print('Hello world')
+`
+
+
+
+`
+Example (self.example):
+((None, 'Hello world'))
+`
+
+
+
+`
+Tests (self.tests -> self.testlist_1, self.testlist_2):
+self.testlist = [[None]]
+`

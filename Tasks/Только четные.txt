@@ -1,0 +1,37 @@
+`
+Task (self.condition):
+Пользователь вводит четные целые числа одно за другим до тех пор пока не введет нечетное число. Программа выводит все введенные числа пока они четные
+`
+
+
+
+`
+Answer (self.answer):
+self.number = int(input())
+while self.number // 2:
+    print(self.number)
+    self.number = int(input())
+`
+
+
+
+`
+Example(self.example):
+(('2\n10\n100\n12\n5', '2\n10\n100\n12'))
+`
+
+
+
+`
+Tests (self.tests -> self.testlist_1, self.testlist_2):
+self.testlist = [['2', '10', '100', '12', '5']]
+for i in range(75):
+    a = []
+    chislo = randint(0, 1000)
+    a.append(str(chislo))
+    while chislo % 2 == 0:
+        chislo = randint(0, 1000)
+        a.append(str(chislo))
+    self.testlist.append(a)
+
+`
