@@ -1,4 +1,4 @@
-version 1.0
+version 1.1
 
 new:
 ! greet.png
@@ -7,3 +7,8 @@ new:
 ! version.txt
 ! workspace.png
 ! workspace.ui
+! condition.png
+! conditiom.ui
+! main.png
+! main.ui
+

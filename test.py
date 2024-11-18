@@ -2,6 +2,11 @@ import sys
 import requests
 import os
 import time
+import textwrap
+
+from itertools import product
+from random import choice, randint
+from copy import deepcopy
 
 from PIL import Image
 from PyQt5 import uic
@@ -124,6 +129,7 @@ class WindowMaker(QMainWindow):
 
     #Если нажали esc
     def back(self):
+        print(1)
         self.close()
 
     #Если нажали enter
@@ -138,16 +144,154 @@ class Greet(WindowMaker):
         self.label.setStyleSheet(f'font-size: {value * 2}px; color: white; padding-left: {int(value ** 1.5) * 7}px')
 
     def mousePressEvent(self, event):
-        self.nextWindow('Workspace', 'workspace.ui', 'workspace.png')
+        self.confirm()
+        
+    def confirm(self):
+        self.nextWindow('Main', 'main.ui', 'main.png')
+
+
+class Main(WindowMaker):
+    def __init__(self, ui, background_image):
+        super().__init__(ui, background_image)
+        self.comboBox.setStyleSheet('background: #1D3633; color: white; border: 1px #1D3633 solid')
+        self.pushButton.setStyleSheet('background: #B4E6B6; color: #1D3633; padding: 10px 30px; border: 1px #B4E6B6 solid; border-radius: 15px')
+        self.pushButton.clicked.connect(self.confirm)
+        for filename in os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tasks')):
+            if filename.endswith('.txt'):
+                self.comboBox.addItem(filename.rstrip('.txt'))
+
+    def confirm(self):
+        self.next_window = Workspace('workspace.ui', 'workspace.png', f'{self.comboBox.currentText()}.txt')
+        self.close()
+
+    def back(self):
+        self.nextWindow('Greet', 'greet.ui', 'greet.png')
+
+    def mousePressEvent(self, event):
+        pass
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        value = self.width() // 100 + 4
+        self.pushButton.setStyleSheet(f'background: #B4E6B6; color: #1D3633; padding: 10px 30px; border: 1px #B4E6B6 solid; border-radius: 15px; font-size: {value * 2}px;')
 
 
 class Workspace(WindowMaker):
-    def __init__(self, ui, background_image):
+    def con(self):
+        self.next_window = Condition('condition.ui', 'condition.png')
+        self.next_window.show()
+    
+    def __init__(self, ui, background_image, task):
         super().__init__(ui, background_image)
-        self.pushButton.setStyleSheet('background: #FA9800; color: white; padding: 10px 30px; border: 1px solid #FA9800; border-radius: 25px')
+        self.pushButton.setStyleSheet('background: #FA9800; color: white; padding: 10px 30px; border: 1px solid #FA9800; border-radius: 15px;')
+        self.textEdit.setHtml('''<!DOCTYPE html>
+<html><head><meta name="qrichtext" content="1" /><style type="text/css">
+p, li { white-space: pre-wrap; text-decoration: bold}
+</style></head><body style="font-family: 'Courier New'; font-size: 12pt; font-weight: 600; font-style: normal">
+<code><p style="margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-block-indent: 0; text-indent: 0px"><span style="font-family: 'Courier New'; font-size: 12pt"></span></p></code></body></html>''')
+        self.textEdit.setStyleSheet('background: #4472C4; color: white; border: 2px white solid')
+        self.label.setStyleSheet('color: white')
+        self.pushButton_3.clicked.connect(self.con)
+        self.pushButton_4.clicked.connect(self.back)
+        self.testlist = None
+        self.pushButton.clicked.connect(self.confirm)
+        self.textEdit.textChanged.connect(self.labelClear)
+        try:
+            file = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tasks', task), 'r', encoding='utf-8')
+            self.task = file.readlines()
+            self.task[-1] += '\n'
+            file.close()
+            for test_part in ['condition', 'answer', 'example', 'tests']:
+                first_value = self.task.index('`\n')
+                self.task.pop(first_value)
+                second_value = self.task.index('`\n')
+                self.task.pop(second_value)
+                task_part = []
+                for line in range(first_value + 1, second_value):
+                    task_part.append(self.task[line])
+                task_part[-1] = task_part[-1].rstrip()
+                exec(f"""self.{test_part} = '''{"".join(task_part)}'''""")
+        except Exception as e:
+            print('Файл с задачей повреждён или был удалён или переименован незадолго до открытия окна. Пожалуйста, перезапустите приложение. Задачу придётся скачать заново')
+            sys.exit()
+            return None
+        #Теперь существуют self.condition, self.answer, self.example и self.tests
+        self.show()
+        
+    def confirm(self):
+        self.label.setText('Тестируем...')
+        if self.testlist == None:
+            exec(self.tests)
+            self.answer = self.answer.replace('print(', 'self.testprint(temp_file, ').replace('input(', 'self.testinput(self.testlist_2[test_variables], temp_file, ').replace(', )', ')')
+        self.code = self.textEdit.toPlainText()
+        self.printTestSystem()
+
+    def labelClear(self):
+        self.label.setText('Результат')
+
+    #Крайне примитивная система проверки задач, результатом которых является печать. Возвращает ответ тестов
+    def printTestSystem(self):
+        self.lenght = len(self.testlist)
+        self.testlist_1 = deepcopy(self.testlist)
+        self.testlist_2 = deepcopy(self.testlist)
+        self.code = f'''try:
+{textwrap.indent(self.code, '    ')}
+    self.result = 'OK'
+except Exception as e:
+    self.result = (str(e))'''.replace('print(', 'self.testprint(temp_file, ').replace('input(', 'self.testinput(self.testlist_1[test_variables], temp_file, ').replace(', )', ')')
+        with open('temp.txt', 'w', encoding='utf-8') as temp_file:
+            for test_variables in range(len(self.testlist)):
+                exec(self.code)
+            temp_file.write('\n')
+            for test_variables in range(len(self.testlist)):
+                print(self.answer)
+                exec(self.answer)
+        with open('temp.txt', 'r', encoding='utf-8') as temp_file:
+            lines = temp_file.readlines()
+        if len(list(filter(lambda x: x.strip(), lines))) < self.lenght * 2:
+            self.label.setText('Не все выводы выполнены')
+        elif len(list(filter(lambda x: x.strip(), lines))) > self.lenght * 2:
+            self.label.setText('Выводов слишком много')
+        else:
+            for i in range(self.lenght):
+                if lines[i] != lines[i + 1 + self.lenght]:
+                    self.label.setText('Некоторые тесты некорректны')
+                    break
+            else:
+                self.label.setText('OK')
+                
+    def mousePressEvent(self, event):
+        pass
+
+    def testprint(self, *args, sep=' ', end='\n', file=None, flush=False):
+        args = list(args)
+        file = args.pop(0)
+        file.write(sep.join(list(map(str, args))) + end)
+        return None
+
+    def testinput(self, li, temp_file, prompt=''):
+        if prompt:
+            self.testprint(temp_file, prompt)
+        if li:
+            return li.pop(0)
+        raise InputException
+
+    def back(self):
+        self.nextWindow('Main', 'main.ui', 'main.png')
+        
+
+class InputException(Exception):
+    def __init__(self):
+        pass
+    
+    def __str__(self):
+        return 'too many inputs'
 
 
+class Condition(WindowMaker):
+    pass
 
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Greet('greet.ui', 'greet.png')
