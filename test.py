@@ -1,7 +1,6 @@
 import sys
 import requests
 import os
-import time
 import textwrap
 
 from itertools import product
@@ -41,7 +40,9 @@ class WindowMaker(QMainWindow):
         self.aspect_ratio = width / height
 
     def resizeEvent(self, event):
-        self.post_image = self.pre_image.scaled(self.size(), Qt.KeepAspectRatioByExpanding, transformMode = Qt.SmoothTransformation)
+        self.post_image = self.pre_image.scaled(self.size(),
+                                                Qt.KeepAspectRatioByExpanding,
+                                                transformMode = Qt.SmoothTransformation)
         self.background.setBrush(QPalette.Window, QBrush(self.post_image))
         self.setPalette(self.background)
         self.setFixedHeight(int(self.width() / self.aspect_ratio))
@@ -69,7 +70,9 @@ class WindowMaker(QMainWindow):
             git_version = requests.get('https://raw.githubusercontent.com/skezixxx/Project/refs/heads/main/version.txt').text
             #Скачиваем недостающие элементы
             if download:
-                queue = sorted(list(set(map(lambda x: x.strip().strip('!'), filter(lambda x: x.strip().startswith('!'), git_version.split('\n')[2:]))) - set(os.listdir(os.path.dirname(os.path.abspath(__file__))))))
+                queue = sorted(list(set(map(lambda x: x.strip().strip('!'),
+                                            filter(lambda x: x.strip().startswith('!'),
+                                                   git_version.split('\n')[2:]))) - set(os.listdir(os.path.dirname(os.path.abspath(__file__))))))
                 for i in queue:
                     i = i.strip()
                     try:
@@ -109,7 +112,10 @@ class WindowMaker(QMainWindow):
         #Возвращаем список ответов наших попыток
         return response
 
-    def throwDialogue(self, title, icon=None, text=None, informative_text=None, detailed_text=None, buttons='QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No'):
+    def throwDialogue(self, title, icon=None,
+                      text=None, informative_text=None,
+                      detailed_text=None,
+                      buttons='QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No'):
         dialogue = QMessageBox(self)
         dialogue.setWindowTitle(title)
         dialogue.setText(text)
@@ -161,7 +167,9 @@ class Main(WindowMaker):
                 self.comboBox.addItem(filename.rstrip('.txt'))
 
     def confirm(self):
-        self.next_window = Workspace('workspace.ui', 'workspace.png', f'{self.comboBox.currentText()}.txt')
+        self.next_window = Workspace('workspace.ui',
+                                     'workspace.png',
+                                     f'{self.comboBox.currentText()}.txt')
         self.close()
 
     def back(self):
@@ -178,7 +186,8 @@ class Main(WindowMaker):
 
 class Workspace(WindowMaker):
     def con(self):
-        self.next_window = Condition('condition.ui', 'condition.png', self.condition)
+        self.next_window = Condition('condition.ui', 'condition.png',
+                                     self.condition)
         self.next_window.show()
     
     def __init__(self, ui, background_image, task):
@@ -244,7 +253,6 @@ except Exception as e:
                 exec(self.code)
             temp_file.write('\n')
             for test_variables in range(len(self.testlist)):
-                print(self.answer)
                 exec(self.answer)
         with open('temp.txt', 'r', encoding='utf-8') as temp_file:
             lines = temp_file.readlines()
