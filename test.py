@@ -272,7 +272,7 @@ except Exception as e:
         pass
 
     def testprint(self, *args, sep=' ', end='\n', file=None, flush=False):
-       try:
+        try:
            args = list(args)
            file = args.pop(0)
            file.write(sep.join(list(map(str, args))) + end)
