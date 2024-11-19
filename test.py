@@ -178,7 +178,7 @@ class Main(WindowMaker):
 
 class Workspace(WindowMaker):
     def con(self):
-        self.next_window = Condition('condition.ui', 'condition.png')
+        self.next_window = Condition('condition.ui', 'condition.png', self.condition)
         self.next_window.show()
     
     def __init__(self, ui, background_image, task):
@@ -289,7 +289,11 @@ class InputException(Exception):
 
 
 class Condition(WindowMaker):
-    pass
+    def __init__(self, ui, background_image, condition):
+        super().__init__(ui, background_image)
+        self.condition = condition
+        self.textEdit.setStyleSheet('background: #4472C4; color: white; border: 2px white solid')
+        self.textEdit.setText(self.condition.strip())
 
     
 if __name__ == '__main__':
