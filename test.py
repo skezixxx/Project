@@ -272,10 +272,13 @@ except Exception as e:
         pass
 
     def testprint(self, *args, sep=' ', end='\n', file=None, flush=False):
-        args = list(args)
-        file = args.pop(0)
-        file.write(sep.join(list(map(str, args))) + end)
-        return None
+       try:
+           args = list(args)
+           file = args.pop(0)
+           file.write(sep.join(list(map(str, args))) + end)
+           eturn None
+        except:
+            pass
 
     def testinput(self, li, temp_file, prompt=''):
         if prompt:
