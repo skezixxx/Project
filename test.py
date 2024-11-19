@@ -276,7 +276,7 @@ except Exception as e:
            args = list(args)
            file = args.pop(0)
            file.write(sep.join(list(map(str, args))) + end)
-           eturn None
+           return None
         except:
             pass
 
